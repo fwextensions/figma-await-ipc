@@ -1,0 +1,10 @@
+.DS_Store
+*.log
+*.css.d.ts
+dist/
+node_modules/
+manifest.json
+
+.editorconfig
+.idea
+.vscode

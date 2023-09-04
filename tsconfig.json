@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist",
+    "strict": true,
+    "skipLibCheck": true,
+    "lib": [
+      "es2020",
+      "dom"
+    ],
+    "target":"es2020",
+    "typeRoots": [
+      "node_modules/@types",
+      "node_modules/@figma"
+    ]
+  },
+  "include": ["src/**/*.ts"]
+}
