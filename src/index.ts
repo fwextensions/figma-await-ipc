@@ -1,5 +1,7 @@
 import { DeferredPromise } from "./DeferredPromise";
 
+export { DeferredPromise };
+
 interface Message {
 	type: "call"|"response";
 	id: number;
@@ -73,14 +75,14 @@ export function ignore(
 }
 
 	// add the environment-specific ways of sending/receiving messages
-if (typeof figma === "object") {
+if (typeof window === "undefined") {
 	post = (message: Message) => figma.ui.postMessage(message);
 
 	figma.ui.on("message", handleMessage);
 } else {
 	post = (message: Message) => window.parent.postMessage({ pluginMessage: message }, "*");
 
-	window.addEventListener("message", (event) => {
+	addEventListener("message", (event) => {
 		if (typeof event.data.pluginMessage !== "undefined") {
 			handleMessage(event.data.pluginMessage);
 		}
