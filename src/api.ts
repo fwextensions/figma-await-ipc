@@ -1,6 +1,6 @@
 import { DeferredPromise } from "./DeferredPromise";
 
-export { DeferredPromise };
+export type ReceiverFn = (...data: any) => any;
 
 interface Message {
 	type: "call"|"response";
@@ -8,8 +8,6 @@ interface Message {
 	name: string;
 	data: any;
 }
-
-type ReceiverFn = (...data: any) => any;
 
 const promisesByID: Record<number, DeferredPromise<any>> = {};
 const receiversByName: Record<string, ReceiverFn> = {};

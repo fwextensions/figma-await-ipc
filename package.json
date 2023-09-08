@@ -5,7 +5,6 @@
   "keywords": ["figma", "plugin", "await", "promise", "postMessage"],
   "author": "John Dunning",
   "license": "MIT",
-  "main": "src/index.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/fwextensions/figma-await-call.git"
