@@ -10,9 +10,47 @@ figma.currentPage.selection[0].characters = name;
 ```
 
 
-
-## Install
+## Installation
 
 ```shell
 npm install figma-await-call
 ```
+
+
+## Usage
+
+```js
+import { call, receive, ignore, DeferredPromise } from "figma-await-call";
+```
+
+
+```js
+try {
+  const data = await call("getData", arg1, arg2);
+  console.log("Received data:", data);
+} catch (error) {
+  console.error("Error fetching data:", error);
+}
+```
+
+
+```js
+receive("getData", async (arg1, arg2) => {
+  // Process data retrieval
+  const result = await fetchSomeData(arg1, arg2);
+  return result;
+});
+```
+
+
+## API
+
+### `call(name, ...data)`
+
+
+### `receive(name, receiverFn)`
+
+
+## License
+
+[MIT](./LICENSE) © [John Dunning](https://github.com/fwextensions)

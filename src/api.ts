@@ -39,7 +39,7 @@ export function call<T>(
 }
 
 /**
- * Assigns a function to receive calls with a particular name.  It will receive
+ * Registers a function to receive calls with a particular name.  It will receive
  * whatever parameters are passed to the `call()` function.  Its return value
  * will be sent back to the caller.
  *
@@ -61,8 +61,8 @@ export function receive(
 }
 
 /**
- * Removes the receiver for a given call name.  Subsequent calls to that name
- * from the other thread will never return.
+ * Unregisters the receiver for a given call name.  Subsequent calls to that
+ * name from the other thread will never return.
  *
  * @param {string} name - The name of the receiver to remove.
  */
