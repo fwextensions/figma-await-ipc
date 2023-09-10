@@ -18,7 +18,7 @@ export class DeferredPromise<T> implements Promise<T> {
 
 	then<TResult1 = T, TResult2 = never>(
 		onFulfilled: (value: T) => (PromiseLike<TResult1> | TResult1),
-		onRejected: (reason: any) => (PromiseLike<TResult2> | TResult2))
+		onRejected?: (reason: any) => (PromiseLike<TResult2> | TResult2))
 	{
 		return this._promise.then(onFulfilled, onRejected);
 	}

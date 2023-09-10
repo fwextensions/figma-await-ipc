@@ -1,6 +1,9 @@
 {
   "compilerOptions": {
     "outDir": "./dist",
+    "module": "ES2020",
+    "declaration": true,
+    "sourceMap": true,
     "strict": true,
     "skipLibCheck": true,
     "lib": [

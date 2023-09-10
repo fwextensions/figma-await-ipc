@@ -2,7 +2,13 @@
   "name": "figma-await-call",
   "version": "0.0.1",
   "description": "",
-  "keywords": ["figma", "plugin", "await", "promise", "postMessage"],
+  "keywords": [
+    "figma",
+    "plugin",
+    "await",
+    "promise",
+    "postMessage"
+  ],
   "author": "John Dunning",
   "license": "MIT",
   "repository": {
@@ -13,12 +19,22 @@
     "url": "https://github.com/fwextensions/figma-await-call/issues"
   },
   "homepage": "https://github.com/fwextensions/figma-await-call#readme",
+  "type": "module",
+  "files": ["dist"],
+  "exports": "./dist/index.js",
+  "tsup": {
+    "format": ["esm"],
+    "dts": true,
+    "sourcemap": true,
+    "clean": true
+  },
   "scripts": {
-    "build": "tsc",
+    "build": "tsup src/index.ts",
     "dev": "npm run build -- --watch"
   },
   "devDependencies": {
     "@figma/plugin-typings": "1.76.0",
+    "tsup": "^7.2.0",
     "typescript": "^5"
   }
 }
