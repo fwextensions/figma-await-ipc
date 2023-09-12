@@ -30,7 +30,8 @@
   },
   "scripts": {
     "build": "tsup src/index.ts",
-    "dev": "npm run build -- --watch"
+    "dev": "npm run build -- --watch",
+    "prepack": "npm run build"
   },
   "devDependencies": {
     "@figma/plugin-typings": "1.76.0",
