@@ -62,7 +62,7 @@ export function call<T>(
  * If the receiver returns a promise, then no response will be sent to the
  * caller until the promise resolves.
  *
- * Only a single function can listen for any given name, so subsequent calls to
+ * Only a single function can respond to any given name, so subsequent calls to
  * `receive()` will replace the previously registered function.
  *
  * @param {string} name - The name of the receiver.
@@ -80,7 +80,7 @@ export function receive<R>(
  * Unregisters the receiver for a given call name.  Subsequent calls to that
  * name from the other thread will never return.
  *
- * @param {string} name - The name of the receiver to remove.
+ * @param {string} name - The name of the receiver to unregister.
  */
 export function ignore(
 	name: string)
