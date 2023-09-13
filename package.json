@@ -1,7 +1,7 @@
 {
   "name": "figma-await-call",
   "version": "0.0.1",
-  "description": "",
+  "description": "A convenient await-able interface for messaging between the main and UI threads in a Figma plugin.",
   "keywords": [
     "figma",
     "plugin",
@@ -21,9 +21,15 @@
   "homepage": "https://github.com/fwextensions/figma-await-call#readme",
   "type": "module",
   "files": ["dist"],
-  "exports": "./dist/index.js",
+  "exports": {
+    ".": {
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.js"
+    }
+  },
+  "types": "./dist/index.d.ts",
   "tsup": {
-    "format": ["esm"],
+    "format": ["esm", "cjs"],
     "dts": true,
     "sourcemap": true,
     "clean": true
