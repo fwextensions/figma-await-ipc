@@ -42,11 +42,18 @@
   "scripts": {
     "build": "tsup src/index.ts",
     "dev": "npm run build -- --watch",
-    "prepack": "npm run build"
+    "prepack": "npm run build",
+    "release": "release-it"
   },
   "devDependencies": {
     "@figma/plugin-typings": "1.76.0",
+    "release-it": "^16.2.1",
     "tsup": "^7.2.0",
     "typescript": "^5"
+  },
+  "release-it": {
+    "github": {
+      "release": true
+    }
   }
 }
