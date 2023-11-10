@@ -30,15 +30,6 @@
     }
   },
   "types": "./dist/index.d.ts",
-  "tsup": {
-    "format": [
-      "esm",
-      "cjs"
-    ],
-    "dts": true,
-    "sourcemap": true,
-    "clean": true
-  },
   "scripts": {
     "build": "tsup src/index.ts",
     "dev": "npm run build -- --watch",
@@ -53,6 +44,15 @@
     "tsup": "^7.2.0",
     "typescript": "^5"
   },
+  "tsup": {
+    "format": [
+      "esm",
+      "cjs"
+    ],
+    "dts": true,
+    "sourcemap": true,
+    "clean": true
+  },
   "release-it": {
     "github": {
       "release": true
@@ -60,10 +60,28 @@
     "plugins": {
       "@release-it/conventional-changelog": {
         "preset": {
-          "name": "conventionalcommits"
+          "name": "conventionalcommits",
+          "types": [
+            {
+              "type": "feat",
+              "section": "Added"
+            },
+            {
+              "type": "fix",
+              "section": "Fixes"
+            },
+            {
+              "type": "chore",
+              "section": "Chores"
+            },
+            {
+              "type": "ci",
+              "section": "CI/CD"
+            }
+          ]
         },
         "infile": "CHANGELOG.md",
-        "header": "# Changelog\n\n",
+        "header": "# Changelog\n",
         "ignoreRecommendedBump": true
       }
     }
