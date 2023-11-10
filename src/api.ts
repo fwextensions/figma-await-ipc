@@ -23,12 +23,18 @@ type ErrorMessage = MessageBase & {
 	errorJSON: string;
 }
 
-type Message = CallMessage | ResponseMessage | ErrorMessage;
+type ConnectMessage = {
+	type: "connect";
+}
+
+type Message = CallMessage | ResponseMessage | ErrorMessage | ConnectMessage;
 
 const promisesByID: Record<number, DeferredPromise<any>> = {};
 const receiversByName: Record<string, ReceiverFn<unknown>> = {};
+const postQueue: Message[] = [];
 let currentID = 0;
 let post: (message: Message) => void;
+let isConnected = false;
 
 /**
  * Makes a call between the main and UI threads.  It returns a promise that can
@@ -90,7 +96,13 @@ export function ignore(
 
 	// add the environment-specific ways of sending/receiving messages
 if (typeof window === "undefined") {
-	post = (message: Message) => figma.ui.postMessage(message);
+	post = (message: Message) => {
+		if (isConnected) {
+			figma.ui.postMessage(message);
+		} else {
+			postQueue.push(message);
+		}
+	};
 
 	figma.ui.on("message", handleMessage);
 } else {
@@ -101,50 +113,69 @@ if (typeof window === "undefined") {
 			return handleMessage(pluginMessage);
 		}
 	});
+
+		// tell the main thread we're initialized, now that the listener is set up
+	post({ type: "connect" });
 }
 
 async function handleCall(
 	message: CallMessage)
 {
-	const { id, name, data } = message;
-	const receiver = receiversByName[name];
+	if (message?.name in receiversByName) {
+		const { id, name, data } = message;
+		const receiver = receiversByName[name];
 
-	try {
-		const response = await receiver(...data);
+		try {
+			const response = await receiver(...data);
 
-		post({ type: "response", id, name, data: response });
-	} catch (error) {
-			// the Figma postMessage() seems to just stringify everything, but that
-			// turns an Error into {}.  so explicitly walk its own properties and
-			// stringify that.
-		const errorJSON = JSON.stringify(error, Object.getOwnPropertyNames(error));
+			post({ type: "response", id, name, data: response });
+		} catch (error) {
+				// the Figma postMessage() seems to just stringify everything, but that
+				// turns an Error into {}.  so explicitly walk its own properties and
+				// stringify that.
+			const errorJSON = JSON.stringify(error, Object.getOwnPropertyNames(error));
 
-		post({ type: "error", id, name, errorJSON });
+			post({ type: "error", id, name, errorJSON });
+		}
 	}
 }
 
 function handleResponse(
 	message: ResponseMessage)
 {
-	const { id, data } = message;
-	const promise = promisesByID[id];
+	if (message?.id in promisesByID) {
+		const { id, data } = message;
+		const promise = promisesByID[id];
 
-	promise.resolve(data);
+		promise.resolve(data);
+	}
 }
 
 function handleError(
 	message: ErrorMessage)
 {
-	const { id, errorJSON } = message;
-	const promise = promisesByID[id];
-		// parse the stringified error, turn it back into an Error, and reject the
-		// promise with it
-	const { message: errorMessage, ...rest } = JSON.parse(errorJSON);
-		// passing a cause to the constructor is available in Chrome 93+
-		//@ts-ignore
-	const error = new Error(errorMessage, { cause: rest });
+	if (message?.id in promisesByID) {
+		const { id, errorJSON } = message;
+		const promise = promisesByID[id];
+			// parse the stringified error, turn it back into an Error, and reject the
+			// promise with it
+		const { message: errorMessage, ...rest } = JSON.parse(errorJSON);
+			// passing a cause to the constructor is available in Chrome 93+
+			//@ts-ignore
+		const error = new Error(errorMessage, { cause: rest });
 
-	promise.reject(error);
+		promise.reject(error);
+	}
+}
+
+function handleConnect()
+{
+	isConnected = true;
+
+	if (postQueue.length) {
+		postQueue.forEach((message) => post(message));
+		postQueue.length = 0;
+	}
 }
 
 async function handleMessage(
@@ -154,25 +185,21 @@ async function handleMessage(
 		return;
 	}
 
-	const { type, id, name } = message;
-
-	switch (type) {
+	switch (message.type) {
 		case "call":
-			if (name in receiversByName) {
-				await handleCall(message);
-			}
+			await handleCall(message);
 			break;
 
 		case "response":
-			if (id in promisesByID) {
-				handleResponse(message);
-			}
+			handleResponse(message);
 			break;
 
 		case "error":
-			if (id in promisesByID) {
-				handleError(message);
-			}
+			handleError(message);
+			break;
+
+		case "connect":
+			handleConnect();
 			break;
 	}
 }

@@ -37,7 +37,9 @@ try {
 }
 ```
 
-If the called "function" throws an exception in the other thread, that error will be caught and then rethrown in the current thread, so you should wrap the `call()` in a `try/catch` when you know that may happen.  You can also use a standard `then()` method to handle the returned promise:
+If the called "function" throws an exception in the other thread, that error will be caught and then rethrown in the current thread, so you should wrap the `call()` in a `try/catch` when you know that may happen.
+
+You can also use a standard `then()` method to handle the returned promise:
 
 ```typescript
 call("getProperty", "title")
