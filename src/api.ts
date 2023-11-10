@@ -23,12 +23,18 @@ type ErrorMessage = MessageBase & {
 	errorJSON: string;
 }
 
-type Message = CallMessage | ResponseMessage | ErrorMessage;
+type ConnectMessage = {
+	type: "connect";
+}
+
+type Message = CallMessage | ResponseMessage | ErrorMessage | ConnectMessage;
 
 const promisesByID: Record<number, DeferredPromise<any>> = {};
 const receiversByName: Record<string, ReceiverFn<unknown>> = {};
+const postQueue: Message[] = [];
 let currentID = 0;
 let post: (message: Message) => void;
+let isConnected = false;
 
 /**
  * Makes a call between the main and UI threads.  It returns a promise that can
@@ -90,7 +96,13 @@ export function ignore(
 
 	// add the environment-specific ways of sending/receiving messages
 if (typeof window === "undefined") {
-	post = (message: Message) => figma.ui.postMessage(message);
+	post = (message: Message) => {
+		if (isConnected) {
+			figma.ui.postMessage(message);
+		} else {
+			postQueue.push(message);
+		}
+	};
 
 	figma.ui.on("message", handleMessage);
 } else {
@@ -101,6 +113,9 @@ if (typeof window === "undefined") {
 			return handleMessage(pluginMessage);
 		}
 	});
+
+		// let the main thread know we're initialized
+	post({ type: "connect" });
 }
 
 async function handleCall(
@@ -154,24 +169,33 @@ async function handleMessage(
 		return;
 	}
 
-	const { type, id, name } = message;
+	const { type } = message;
 
 	switch (type) {
 		case "call":
-			if (name in receiversByName) {
+			if (message.name in receiversByName) {
 				await handleCall(message);
 			}
 			break;
 
 		case "response":
-			if (id in promisesByID) {
+			if (message.id in promisesByID) {
 				handleResponse(message);
 			}
 			break;
 
 		case "error":
-			if (id in promisesByID) {
+			if (message.id in promisesByID) {
 				handleError(message);
+			}
+			break;
+
+		case "connect":
+			isConnected = true;
+
+			if (postQueue.length) {
+				postQueue.forEach((message) => post(message));
+				postQueue.length = 0;
 			}
 			break;
 	}
