@@ -46,7 +46,7 @@
     "release": "dotenv release-it"
   },
   "devDependencies": {
-    "@figma/plugin-typings": "1.76.0",
+    "@figma/plugin-typings": "1.81.0",
     "@release-it/conventional-changelog": "^7.0.2",
     "dotenv-cli": "^7.3.0",
     "release-it": "^16.2.1",
