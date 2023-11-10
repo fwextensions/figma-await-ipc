@@ -42,11 +42,30 @@
   "scripts": {
     "build": "tsup src/index.ts",
     "dev": "npm run build -- --watch",
-    "prepack": "npm run build"
+    "prepack": "npm run build",
+    "release": "dotenv release-it"
   },
   "devDependencies": {
     "@figma/plugin-typings": "1.76.0",
+    "@release-it/conventional-changelog": "^7.0.2",
+    "dotenv-cli": "^7.3.0",
+    "release-it": "^16.2.1",
     "tsup": "^7.2.0",
     "typescript": "^5"
+  },
+  "release-it": {
+    "github": {
+      "release": true
+    },
+    "plugins": {
+      "@release-it/conventional-changelog": {
+        "preset": {
+          "name": "conventionalcommits"
+        },
+        "infile": "CHANGELOG.md",
+        "header": "# Changelog\n\n",
+        "ignoreRecommendedBump": true
+      }
+    }
   }
 }
