@@ -114,52 +114,68 @@ if (typeof window === "undefined") {
 		}
 	});
 
-		// let the main thread know we're initialized
+		// tell the main thread we're initialized, now that the listener is set up
 	post({ type: "connect" });
 }
 
 async function handleCall(
 	message: CallMessage)
 {
-	const { id, name, data } = message;
-	const receiver = receiversByName[name];
+	if (message?.name in receiversByName) {
+		const { id, name, data } = message;
+		const receiver = receiversByName[name];
 
-	try {
-		const response = await receiver(...data);
+		try {
+			const response = await receiver(...data);
 
-		post({ type: "response", id, name, data: response });
-	} catch (error) {
-			// the Figma postMessage() seems to just stringify everything, but that
-			// turns an Error into {}.  so explicitly walk its own properties and
-			// stringify that.
-		const errorJSON = JSON.stringify(error, Object.getOwnPropertyNames(error));
+			post({ type: "response", id, name, data: response });
+		} catch (error) {
+				// the Figma postMessage() seems to just stringify everything, but that
+				// turns an Error into {}.  so explicitly walk its own properties and
+				// stringify that.
+			const errorJSON = JSON.stringify(error, Object.getOwnPropertyNames(error));
 
-		post({ type: "error", id, name, errorJSON });
+			post({ type: "error", id, name, errorJSON });
+		}
 	}
 }
 
 function handleResponse(
 	message: ResponseMessage)
 {
-	const { id, data } = message;
-	const promise = promisesByID[id];
+	if (message?.id in promisesByID) {
+		const { id, data } = message;
+		const promise = promisesByID[id];
 
-	promise.resolve(data);
+		promise.resolve(data);
+	}
 }
 
 function handleError(
 	message: ErrorMessage)
 {
-	const { id, errorJSON } = message;
-	const promise = promisesByID[id];
-		// parse the stringified error, turn it back into an Error, and reject the
-		// promise with it
-	const { message: errorMessage, ...rest } = JSON.parse(errorJSON);
-		// passing a cause to the constructor is available in Chrome 93+
-		//@ts-ignore
-	const error = new Error(errorMessage, { cause: rest });
+	if (message?.id in promisesByID) {
+		const { id, errorJSON } = message;
+		const promise = promisesByID[id];
+			// parse the stringified error, turn it back into an Error, and reject the
+			// promise with it
+		const { message: errorMessage, ...rest } = JSON.parse(errorJSON);
+			// passing a cause to the constructor is available in Chrome 93+
+			//@ts-ignore
+		const error = new Error(errorMessage, { cause: rest });
 
-	promise.reject(error);
+		promise.reject(error);
+	}
+}
+
+function handleConnect()
+{
+	isConnected = true;
+
+	if (postQueue.length) {
+		postQueue.forEach((message) => post(message));
+		postQueue.length = 0;
+	}
 }
 
 async function handleMessage(
@@ -169,34 +185,21 @@ async function handleMessage(
 		return;
 	}
 
-	const { type } = message;
-
-	switch (type) {
+	switch (message.type) {
 		case "call":
-			if (message.name in receiversByName) {
-				await handleCall(message);
-			}
+			await handleCall(message);
 			break;
 
 		case "response":
-			if (message.id in promisesByID) {
-				handleResponse(message);
-			}
+			handleResponse(message);
 			break;
 
 		case "error":
-			if (message.id in promisesByID) {
-				handleError(message);
-			}
+			handleError(message);
 			break;
 
 		case "connect":
-			isConnected = true;
-
-			if (postQueue.length) {
-				postQueue.forEach((message) => post(message));
-				postQueue.length = 0;
-			}
+			handleConnect();
 			break;
 	}
 }
