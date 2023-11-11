@@ -2,7 +2,7 @@
 
 > A convenient `await`-able interface for messaging between the main and UI threads in a Figma plugin.
 
-Figma plugins typically use `postMessage()` to send messages back and forth between the threads, but managing those asynchronous events can be tedious.  Now you can simply `await` the response to get a synchronous-style flow, like:
+Figma plugins typically use `postMessage()` to send messages back and forth between the threads, but managing those asynchronous events can be tedious.  With `figma-await-call`, you can simply `await` the response to get a synchronous-style flow, like:
 
 ```typescript
 const title = await call("getProperty", "title");
@@ -79,7 +79,7 @@ Makes a call between the main and UI threads.
 * `name`: The name of the receiver in the other thread that is expected to respond to this call.
 * `...data`: Zero or more parameters to send to the receiver.  They must be of types that can be passed through `postMessage()`.
 
-This returns a promise that can be awaited until the other side responds, and which will be resolved with the return value of the receiver function.
+Returns a promise that should be awaited until the other side responds, and which will be resolved with the return value of the receiver function.
 
 If the receiver function throws an exception, that exception will be rethrown from `call()`, so you should use `try/catch` or `.catch()` to handle that case.
 
@@ -91,7 +91,9 @@ Registers a function to receive calls with a particular name.  It will receive w
 * `name`: The name of the receiver.
 * `receiverFn`: The function that will receive calls to the `name` parameter.
 
-The return value from `receiverFn` will be sent back to the caller.  If it returns a promise, then no response will be sent to the caller until the promise resolves.
+When a call is received, the return value from `receiverFn` will be sent back to the caller.  If it returns a promise, then no response will be sent to the caller until the promise resolves.
+
+Calls to a name that has no receiver will be queued until one is registered, at which point they will be delivered to that new `receiverFn` in order.
 
 Only a single function can respond to any given name, so subsequent calls to `receive()` will replace the previously registered function.
 
@@ -102,7 +104,7 @@ Unregisters the receiver for a given function name.
 
 * `name`: The name of the receiver to unregister.
 
-Subsequent calls to the unregistered name from the other thread will never return (unless a new function is registered for it).
+Subsequent calls from the other thread to the unregistered name will be queued until a new function is registered for it.
 
 
 ## License

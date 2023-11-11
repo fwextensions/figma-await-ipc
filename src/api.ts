@@ -32,6 +32,7 @@ type Message = CallMessage | ResponseMessage | ErrorMessage | ConnectMessage;
 const promisesByID: Record<number, DeferredPromise<any>> = {};
 const receiversByName: Record<string, ReceiverFn<unknown>> = {};
 const postQueue: Message[] = [];
+const receiveQueue = new Set<CallMessage>;
 let currentID = 0;
 let post: (message: Message) => void;
 let isConnected = false;
@@ -80,6 +81,18 @@ export function receive<R>(
 	fn: ReceiverFn<R>)
 {
 	receiversByName[name] = fn;
+
+		// now that the new receiver has been registered, call it with any messages
+		// that have been queued for it.  we do this in a timeout so the code calling
+		// receive() doesn't have to await the result.
+	setTimeout(async () => {
+		for (const message of receiveQueue) {
+			if (message.name === name) {
+				receiveQueue.delete(message);
+				await handleCall(message);
+			}
+		}
+	});
 }
 
 /**
@@ -137,6 +150,9 @@ async function handleCall(
 
 			post({ type: "error", id, name, errorJSON });
 		}
+	} else {
+			// queue this message until a receiver is registered for it
+		receiveQueue.add(message);
 	}
 }
 
