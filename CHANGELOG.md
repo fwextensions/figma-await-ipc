@@ -1,6 +1,16 @@
 # Changelog
 
 
+## [0.0.4](https://github.com/fwextensions/figma-await-call/compare/v0.0.3...v0.0.4) (2023-11-11)
+
+
+### Fixes
+
+* Cache incoming calls for unregistered names ([b37f713](https://github.com/fwextensions/figma-await-call/commit/b37f71332b9e52b2325517ca7b476f0f925451cd))
+
+# Changelog
+
+
 ## [0.0.3](https://github.com/fwextensions/figma-await-call/compare/v0.0.2...v0.0.3) (2023-11-10)
 
 
