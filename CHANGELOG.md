@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.1.0](https://github.com/fwextensions/figma-await-ipc/compare/v0.0.4...v0.1.0) (2023-11-18)
+
+
+### Fixes
+
+* Rename package to `figma-await-ipc` ([7524bd3](https://github.com/fwextensions/figma-await-ipc/commit/7524bd33ea3f8c63e555bc451c725839dcd2c456))
+
+
+### Chores
+
+* Update release-it packages ([04411bf](https://github.com/fwextensions/figma-await-ipc/commit/04411bff1214764615d07cdf218f32f894021056))
 
 ## [0.0.4](https://github.com/fwextensions/figma-await-call/compare/v0.0.3...v0.0.4) (2023-11-11)
 
