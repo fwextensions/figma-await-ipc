@@ -38,9 +38,9 @@
   },
   "devDependencies": {
     "@figma/plugin-typings": "1.81.0",
-    "@release-it/conventional-changelog": "^7.0.2",
+    "@release-it/conventional-changelog": "^8.0.0",
     "dotenv-cli": "^7.3.0",
-    "release-it": "^16.2.1",
+    "release-it": "^17.0.0",
     "tsup": "^7.2.0",
     "typescript": "^5"
   },
@@ -81,7 +81,7 @@
           ]
         },
         "infile": "CHANGELOG.md",
-        "header": "# Changelog\n",
+        "header": "# Changelog",
         "ignoreRecommendedBump": true
       }
     }

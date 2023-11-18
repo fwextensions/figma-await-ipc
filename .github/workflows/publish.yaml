@@ -6,7 +6,9 @@ on:
       - 'v*'
 
 jobs:
-  build:
+  Build:
+    # disable this flow for now, given that we added Release-It
+    if: false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
