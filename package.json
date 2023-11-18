@@ -1,7 +1,7 @@
 {
-  "name": "figma-await-call",
+  "name": "figma-await-ipc",
   "version": "0.0.4",
-  "description": "A convenient await-able interface for messaging between the main and UI threads in a Figma plugin.",
+  "description": "A simple await-able replacement for postMessage() in Figma plugins.",
   "keywords": [
     "figma",
     "plugin",
@@ -13,12 +13,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fwextensions/figma-await-call.git"
+    "url": "git+https://github.com/fwextensions/figma-await-ipc.git"
   },
   "bugs": {
-    "url": "https://github.com/fwextensions/figma-await-call/issues"
+    "url": "https://github.com/fwextensions/figma-await-ipc/issues"
   },
-  "homepage": "https://github.com/fwextensions/figma-await-call#readme",
+  "homepage": "https://github.com/fwextensions/figma-await-ipc#readme",
   "type": "module",
   "files": [
     "dist"
