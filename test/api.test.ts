@@ -176,6 +176,41 @@ describe("queueing", () => {
 		ui.receive("b", () => "B");
 		expect(await b).toBe("B");
 	});
+	it("queues calls after ignore() until a new receiver is registered", async () => {
+		const { main, ui } = await connected();
+
+		ui.receive("toggle", () => "first");
+		expect(await main.call("toggle")).toBe("first");
+
+		ui.ignore("toggle");
+
+		const result = main.call("toggle");
+		const isSettled = track(result);
+
+		await flush();
+		expect(isSettled()).toBe(false);
+
+		ui.receive("toggle", () => "second");
+		expect(await result).toBe("second");
+	});
+
+	it("keeps calls queued when ignore() follows receive() before delivery", async () => {
+		const { main, ui } = await connected();
+		const result = main.call("flaky", "x");
+
+		await flush();
+		ui.receive("flaky", (value: string) => value);
+		ui.ignore("flaky");
+		await flush();
+
+		const isSettled = track(result);
+
+		await flush();
+		expect(isSettled()).toBe(false);
+
+		ui.receive("flaky", (value: string) => value + "!");
+		expect(await result).toBe("x!");
+	});
 });
 
 describe("message handling", () => {

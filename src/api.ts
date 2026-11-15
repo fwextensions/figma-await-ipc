@@ -85,8 +85,17 @@ export function receive<R>(
 		// now that the new receiver has been registered, call it with any messages
 		// that have been queued for it.  we do this in a timeout so the code calling
 		// receive() doesn't have to await the result.
+		// iterate over a snapshot, since handleCall() re-queues messages whose
+		// receiver has gone away, and re-adding to a Set while iterating it would
+		// loop forever.
 	setTimeout(async () => {
-		for (const message of receiveQueue) {
+		for (const message of [...receiveQueue]) {
+				// stop if ignore() was called after receive() or during an earlier
+				// await, leaving the remaining messages queued for the next receiver
+			if (!(name in receiversByName)) {
+				break;
+			}
+
 			if (message.name === name) {
 				receiveQueue.delete(message);
 				await handleCall(message);
