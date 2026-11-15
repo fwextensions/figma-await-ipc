@@ -191,6 +191,7 @@ function handleResponse(
 		const { id, data } = message;
 		const promise = promisesByID[id];
 
+		delete promisesByID[id];
 		promise.resolve(data);
 	}
 }
@@ -201,6 +202,9 @@ function handleError(
 	if (message?.id in promisesByID) {
 		const { id, errorJSON } = message;
 		const promise = promisesByID[id];
+
+		delete promisesByID[id];
+
 			// parse the stringified error, turn it back into an Error, and reject the
 			// promise with it
 		const { message: errorMessage, ...rest } = JSON.parse(errorJSON);
