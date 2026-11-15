@@ -155,17 +155,33 @@ async function handleCall(
 
 			post({ type: "response", id, name, data: response });
 		} catch (error) {
-				// the Figma postMessage() seems to just stringify everything, but that
-				// turns an Error into {}.  so explicitly walk its own properties and
-				// stringify that.
-			const errorJSON = JSON.stringify(error, Object.getOwnPropertyNames(error));
-
-			post({ type: "error", id, name, errorJSON });
+			post({ type: "error", id, name, errorJSON: serializeError(error) });
 		}
 	} else {
 			// queue this message until a receiver is registered for it
 		receiveQueue.add(message);
 	}
+}
+
+function serializeError(
+	error: unknown)
+{
+	if (error !== null && typeof error === "object") {
+		try {
+				// the Figma postMessage() seems to just stringify everything, but that
+				// turns an Error into {}.  so explicitly walk its own properties and
+				// stringify that.
+			return JSON.stringify(error, Object.getOwnPropertyNames(error));
+		} catch {
+				// fall through for circular references or other stringify failures
+		}
+	}
+
+		// for thrown primitives like strings or undefined, use the value as the
+		// message.  if it's an object that couldn't be stringified, use its message.
+	const message = (error as any)?.message ?? error;
+
+	return JSON.stringify({ message: String(message) });
 }
 
 function handleResponse(
