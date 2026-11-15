@@ -221,6 +221,8 @@ describe("message handling", () => {
 			await sendToMain(message);
 		}
 
+		sendToUI(undefined);
+		sendToUI(null);
 		sendToUI("not an object");
 		sendToUI({ pluginMessage: null });
 		sendToUI({ pluginMessage: "string" });
