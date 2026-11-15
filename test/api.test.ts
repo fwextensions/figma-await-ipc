@@ -115,6 +115,43 @@ describe("errors", () => {
 
 		await expect(ui.call("fail")).rejects.toThrow("async boom");
 	});
+
+	it.each([
+		["a string", "nope", "nope"],
+		["a number", 404, "404"],
+		["undefined", undefined, "undefined"],
+		["null", null, "null"],
+	])("rethrows %s as an Error with that value as its message", async (_, thrown, message) => {
+		const { main, ui } = await connected();
+
+		ui.receive("throws", () => { throw thrown; });
+
+		const error: any = await main.call("throws").catch((e: any) => e);
+
+		expect(error).toBeInstanceOf(Error);
+		expect(error.message).toBe(message);
+	});
+
+	it("rethrows a plain object's properties", async () => {
+		const { main, ui } = await connected();
+
+		ui.receive("throws", () => { throw { message: "plain", code: 7 }; });
+
+		const error: any = await main.call("throws").catch((e: any) => e);
+
+		expect(error.message).toBe("plain");
+		expect(error.cause).toEqual({ code: 7 });
+	});
+
+	it("rethrows an error that can't be stringified", async () => {
+		const { main, ui } = await connected();
+		const circular: any = new Error("circular");
+
+		circular.self = circular;
+		ui.receive("throws", () => { throw circular; });
+
+		await expect(main.call("throws")).rejects.toThrow("circular");
+	});
 });
 
 describe("queueing", () => {
