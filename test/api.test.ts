@@ -248,6 +248,26 @@ describe("queueing", () => {
 		ui.receive("flaky", (value: string) => value + "!");
 		expect(await result).toBe("x!");
 	});
+
+	it("delivers each queued call once when receive() is called twice", async () => {
+		const { main, ui } = await connected();
+		const received: number[] = [];
+		const calls = [1, 2, 3].map((n) => main.call("twice", n));
+		const slow = async (n: number) => {
+			received.push(n);
+			await flush();
+
+			return n;
+		};
+
+		await flush();
+		ui.receive("twice", slow);
+		ui.receive("twice", slow);
+
+		expect(await Promise.all(calls)).toEqual([1, 2, 3]);
+		await flush();
+		expect(received).toEqual([1, 2, 3]);
+	});
 });
 
 describe("message handling", () => {
