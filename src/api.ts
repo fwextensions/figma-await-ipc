@@ -130,7 +130,10 @@ if (typeof window === "undefined") {
 } else {
 	post = (message: Message) => window.parent.postMessage({ pluginMessage: message }, "*");
 
-	addEventListener("message", ({ data: { pluginMessage } }) => {
+		// other code in the page can post messages too, and their data may be null
+	addEventListener("message", ({ data }) => {
+		const pluginMessage = data?.pluginMessage;
+
 		if (pluginMessage && typeof pluginMessage === "object") {
 			return handleMessage(pluginMessage);
 		}
