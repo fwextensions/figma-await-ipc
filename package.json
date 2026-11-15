@@ -34,7 +34,10 @@
     "build": "tsup src/index.ts",
     "dev": "npm run build -- --watch",
     "prepack": "npm run build",
-    "release": "dotenv release-it"
+    "release": "dotenv release-it",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit -p tsconfig.test.json"
   },
   "devDependencies": {
     "@figma/plugin-typings": "1.81.0",
@@ -42,7 +45,8 @@
     "dotenv-cli": "^7.3.0",
     "release-it": "^17.0.0",
     "tsup": "^7.2.0",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^3.2.7"
   },
   "tsup": {
     "format": [
@@ -54,6 +58,12 @@
     "clean": true
   },
   "release-it": {
+    "hooks": {
+      "before:init": [
+        "npm run typecheck",
+        "npm test"
+      ]
+    },
     "github": {
       "release": true
     },
