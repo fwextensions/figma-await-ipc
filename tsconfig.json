@@ -11,9 +11,8 @@
       "dom"
     ],
     "target":"es2020",
-    "typeRoots": [
-      "node_modules/@types",
-      "node_modules/@figma"
+    "types": [
+      "@figma/plugin-typings"
     ]
   },
   "include": ["src/**/*.ts"]

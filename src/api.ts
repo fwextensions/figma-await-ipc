@@ -122,6 +122,7 @@ export function ignore(
 
 	// add the environment-specific ways of sending/receiving messages
 if (typeof window === "undefined") {
+		// we're in the main thread
 	post = (message: Message) => {
 		if (isConnected) {
 			figma.ui.postMessage(message);
@@ -132,6 +133,7 @@ if (typeof window === "undefined") {
 
 	figma.ui.on("message", handleMessage);
 } else {
+		// we're in the UI thread
 	post = (message: Message) => window.parent.postMessage({ pluginMessage: message }, "*");
 
 		// other code in the page can post messages too, and their data may be null

@@ -61,7 +61,12 @@ export async function createPlugin()
 		connectUI,
 		toUI,
 		toMain,
-			// inject raw messages, bypassing the other side's API
+			// deliver a message straight to one side's listener, skipping both the
+			// other side's call()/post() and the fake transport above: no
+			// structuredClone, no async delivery, no envelope added.  this lets tests
+			// send messages the real API never would, like malformed ones.
+			// sendToMain() takes an unwrapped pluginMessage, as figma.ui.on() gets;
+			// sendToUI() takes the raw event.data, so it can omit pluginMessage.
 		sendToMain: (message: any) => mainHandler?.(message),
 		sendToUI: (data: any) => uiListener?.({ data }),
 	};
